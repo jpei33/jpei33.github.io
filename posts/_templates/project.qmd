@@ -38,6 +38,6 @@ What could make this result wrong or not generalize? Be your own harshest review
 
 ## What I still don't understand
 
-<!-- This section is the point of the post. Each item here goes into gaps.qmd. -->
+<!-- This section is the point of the post. Copy each item into _private/gaps.md (not published). -->
 
 -

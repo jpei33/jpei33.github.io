@@ -1,0 +1,43 @@
+---
+title: "PROJECT NAME: one-line finding or question"
+description: "One sentence a stranger could understand."
+date: 2026-MM-DD
+categories: [project, post-training]
+draft: true
+---
+
+<!-- Copy this folder to posts/YYYY-MM-slug/index.qmd. Delete prompts as you answer them. -->
+
+## The question
+
+What were you trying to find out, and why does anyone care? One paragraph.
+
+## Setup
+
+- **Model(s):** base model, size, why this one
+- **Training:** objective, written as a loss. Which tokens contribute to it? LoRA rank/alpha if used.
+- **Data:** where it came from, how many examples, how it was filtered, train/test split (by what unit?)
+- **Eval:** the metric, what it's measured against, how many samples/seeds
+- **Baselines:** what would make the result uninteresting?
+
+$$
+\mathcal{L} = \dots
+$$
+
+## Results
+
+The headline number, with uncertainty. One figure if it helps.
+
+## What surprised me
+
+## Threats to validity
+
+What could make this result wrong or not generalize? Be your own harshest reviewer.
+
+## What I'd do with 10× the time or compute
+
+## What I still don't understand
+
+<!-- This section is the point of the post. Copy each item into _private/gaps.md (not published). -->
+
+-

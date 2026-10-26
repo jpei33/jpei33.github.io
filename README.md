@@ -18,7 +18,7 @@ quarto preview          # live-reloading local preview
 New post: copy `posts/_templates/project.qmd` or `concept.qmd` to `posts/YYYY-MM-slug/index.qmd`.
 
 - `draft: true` keeps a post off the published site. The source is still visible in a public repo, so keep anything truly private in a separate private repo or local folder.
-- Mark hand-waving inline with `<!-- GAP: ... -->`, then sweep them into `gaps.qmd` weekly:
+- Mark hand-waving inline with `<!-- GAP: ... -->`, then sweep them into `_private/gaps.md` weekly and delete them before publishing (HTML comments are visible in page source):
 
 ```bash
 grep -rn "GAP:" posts/
@@ -31,7 +31,7 @@ grep -rn "GAP:" posts/
 ```
 _quarto.yml        site config
 index.qmd          post listing
-gaps.qmd           running gap log
+_private/gaps.md   running gap log (gitignored, never published)
 about.qmd
 posts/
   _templates/      not rendered (leading underscore)
