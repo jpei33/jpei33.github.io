@@ -1,0 +1,35 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Justin Pei"
+  description: "Notes on post-training, evals, and agents — written to find out what I don't understand yet."
+  site-url: "https://jpei33.github.io"
+  repo-url: "https://github.com/jpei33/jpei33.github.io"
+  draft-mode: gone          # posts with `draft: true` are skipped on publish
+  navbar:
+    left:
+      - href: index.qmd
+        text: Writing
+      - href: gaps.qmd
+        text: Gap log
+      - href: about.qmd
+        text: About
+    right:
+      - icon: github
+        href: https://github.com/jpei33
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    css: styles.css
+    toc: true
+    code-copy: true
+    highlight-style: github
+    html-math-method: katex
+
+execute:
+  freeze: auto              # code cells only re-run when you change them

@@ -1,0 +1,17 @@
+---
+title: "About"
+toc: false
+---
+
+I'm Justin. I spent about four years in quant trading and research, most recently at a crypto trading firm, and I'm now working on post-training, evals, and agents.
+
+This site is mostly for me: writing things out is how I find where my understanding is thin. Posts are written in the open and revised when I learn I was wrong.
+
+**Projects**
+
+- [proactive-memory-bench](https://github.com/jpei33/proactive-memory-bench) — memory strategies for proactive agents in team chat
+- [reward-hacking-generalization](https://github.com/jpei33/reward-hacking-generalization) — does SFT on shortcut-taking generalize to other constraint violations?
+- steerable-intervention — distilling a small model for the when-to-speak decision
+- [lm-reflection-credit](https://github.com/jpei33/lm-reflection-credit) — are LLM reflection gains search-limited or capability-limited?
+
+<!-- TODO: add email / LinkedIn if you want people to reach you from here -->

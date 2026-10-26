@@ -1,0 +1,14 @@
+---
+title: "Writing"
+listing:
+  contents: posts
+  sort: "date desc"
+  type: default
+  categories: true
+  sort-ui: false
+  filter-ui: false
+page-layout: full
+title-block-banner: false
+---
+
+Project write-ups, concept explainers, and post-mortems. Each post ends with what I still don't understand — those feed the [gap log](gaps.qmd).

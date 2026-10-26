@@ -1,0 +1,18 @@
+/* Keep it readable: narrower text column, slightly larger body */
+body {
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+main.content {
+  max-width: 760px;
+}
+
+h2 {
+  margin-top: 2.2rem;
+}
+
+/* Make the gap log table easy to scan */
+table {
+  font-size: 0.95rem;
+}

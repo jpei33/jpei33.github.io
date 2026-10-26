@@ -1,0 +1,36 @@
+---
+title: "CONCEPT from scratch"
+description: "Explaining X without looking anything up, then checking."
+date: 2026-MM-DD
+categories: [concept]
+draft: true
+---
+
+<!--
+Rules for this kind of post:
+1. Write the first pass with no references open.
+2. Every time you hesitate or hand-wave, leave an HTML comment starting "GAP:" and keep going.
+3. Then look things up, fix the text, and add a "What I got wrong" section.
+-->
+
+## In one paragraph
+
+## The math
+
+$$
+\dots
+$$
+
+## A minimal implementation
+
+```python
+# Write it from memory first. Then run it.
+```
+
+## Where it shows up in my work
+
+## What I got wrong on the first pass
+
+## What I still don't understand
+
+-

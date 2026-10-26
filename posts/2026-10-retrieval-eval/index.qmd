@@ -1,0 +1,48 @@
+---
+title: "Score the rewrite by what it retrieves"
+description: "An interview question I should have nailed, and the habit I'm building so I don't miss it again."
+date: 2026-10-25
+categories: [evals, retrieval, post-mortem]
+draft: true
+---
+
+<!--
+DRAFT FOR JUSTIN: this is a starting point, not the post. Rewrite it in your own voice.
+Keep it general — describe the question, not anything specific to the company's system.
+-->
+
+## The question
+
+In a recent system-design round I was asked: a model rewrites a conversation into a memory query, and that rewrite is used for vector search over a memory store. How would you systematically evaluate the rewrites, and the model's ability to rewrite?
+
+## What I said
+
+I went wide. Human judges, then an LLM judge trained against them, inter-rater agreement with Cohen's kappa, rubrics, keyword checks. None of that is wrong, but I never said the obvious thing.
+
+## What I should have said
+
+The rewrite has exactly one job: get the right memories back. So the primary metric is retrieval quality against a gold set, with the retriever held fixed so the only thing changing is the rewriter.
+
+The awkward part is that I'd already done this. In [proactive-memory-bench](https://github.com/jpei33/proactive-memory-bench) I planted facts in earlier threads and scored each memory strategy on whether it surfaced them. Same idea.
+
+A cleaner answer, in order:
+
+1. **Name the consumer.** The rewrite feeds retrieval, so measure retrieval.
+2. **Get gold labels.** For each conversation, which memories *should* come back? Sources: production logs of memories that were actually used, synthetic data with planted facts, or a small hand-labeled set.
+3. **Metrics.** Recall@k, MRR, nDCG against gold.
+4. **Bracket it.** Floor: embed the raw conversation or just the last turn. Ceiling: an oracle or hand-written query. Report where the model lands between them.
+5. **Guardrails.** Faithfulness (no invented entities), length, latency.
+6. **Slice.** Coreference, multi-hop, long conversations, topic shifts. *This* is where an LLM judge earns its place: explaining why failures happen, not producing the headline number.
+
+<!-- GAP: when does nDCG tell you something recall@k doesn't, for a memory store? Graded relevance? Work an example. -->
+
+## The habit
+
+Before anything else in an eval question, ask: **what consumes this output?** Measure that first. Add judges and rubrics only where ground truth is missing.
+
+The other half is delivery. Under pressure I listed tools breadth-first, which reads as not knowing which one matters. Go deep on the main approach first, then mention alternatives.
+
+## What I still don't understand
+
+- <!-- GAP: how do you handle gold sets where multiple different memory sets would be equally good? -->
+- <!-- GAP: if the rewriter is trained against this retrieval metric, how does it overfit to the specific embedding model? -->
