@@ -1,43 +1,60 @@
 ---
-title: "PROJECT NAME: one-line finding or question"
-description: "One sentence a stranger could understand."
-date: 2026-MM-DD
-categories: [project, post-training]
-draft: true
+title: "Memory for proactive agents: what to remember before deciding when to speak"
+description: "Comparing memory strategies for an agent that decides when to intervene in team chat."
+date: 2026-10-27
+categories: [project, agents, memory, evals]
+draft: false
 ---
 
-<!-- Copy this folder to posts/YYYY-MM-slug/index.qmd. Delete prompts as you answer them. -->
+::: {.callout-note}
+Work in progress. Results and the remaining sections are still being written.
+:::
 
-## The question
+## Motivation
 
-What were you trying to find out, and why does anyone care? One paragraph.
+- An agent in chats has to decide on its own when to speak. Speaking too often is noise; staying quiet lets a mistake continue. Historically, frontier LLMs are great at reading and understanding code. However, in chat, messages like "I'll take it" and "I did" can only be understood by agents if they're bundled with the right context.
+- These problems matter more as AI agents become participants in customer support threads and team chats.
+- **Hypothesis:** proactive failures are mostly memory failures, so how memory is written and retrieved can increase proactivity accuracy.
 
-## Setup
+## Background
 
-- **Model(s):** base model, size, why this one
-- **Training:** objective, written as a loss. Which tokens contribute to it? LoRA rank/alpha if used.
-- **Data:** where it came from, how many examples, how it was filtered, train/test split (by what unit?)
-- **Eval:** the metric, what it's measured against, how many samples/seeds
-- **Baselines:** what would make the result uninteresting?
+- Most memory benchmarks for chat agents (LoCoMo, LongMemEval) are reactive: a question is prompted and retrieval is scored against it. Recent proactive work like TriggerBench found that models can recall earlier constraints well but often fail to bring them up on their own when they become relevant.
+- **Gap:** there hasn't been extensive study of varying memory design in multi-person chat, where evidence is spread across replies and reactions.
+- For this project, I compare designs from raw message chunks (no LLM at write time) to LLM rewriting of messages into summaries or topic segments, as well as query methods (keyword, vector and hybrid search).
 
-$$
-\mathcal{L} = \dots
-$$
+## Experiment setup
+
+- **Data.** 4 simulated Slack-style workspaces (876 messages, 21 threads) generated from a ledger of facts (project ownership, dates, statistics). Each fact is stated in one of six evidence forms: explicit, ellipsis, reaction, correction, cross-reference, distributed.
+- **Decision points.**
+  - 36 planted conflicts that need an intervention, in four types: contradiction, stale value, repeat question, and missed deadline.
+  - 13 commitments to track.
+  - 33 decoys, which look like conflicts but aren't.
+  - 150 ordinary messages and 71 follow-ups, to measure false alarms.
+- **Labels.** I hand-labeled 132 possible decision points, and relabeled 30 controversial rows again later on. I then used these to tune a cross-family LLM labeler (GPT) to label the rest.
+- **Memory conditions (5 groupers × 3 retrievers).**
+  - Five ways to group memories: per message, 6-message window, parent-child message linkage, Threader-style LLM topic segments, and LLM write-time rewrite.
+  - Three ways to retrieve: BM25 (keyword search), embeddings (vector search), and hybrid (RRF, which merges both rankings).
+- **Controlled variable.** One judge (Claude Sonnet, fixed prompt and rubric) decides INTERVENE, TRACK, or IGNORE at every point, and only memory varies.
+
+## Evaluation
+
+Eval is split into two parts so failures can be attributed:
+
+- Retrieval accuracy
+- Proactivity accuracy
 
 ## Results
 
-The headline number, with uncertainty. One figure if it helps.
+*To come.*
 
-## What surprised me
+## Limitations
 
-## Threats to validity
+*To come.*
 
-What could make this result wrong or not generalize? Be your own harshest reviewer.
+## Future work
 
-## What I'd do with 10× the time or compute
+*To come.*
 
-## What I still don't understand
+---
 
-<!-- This section is the point of the post. Copy each item into _private/gaps.md (not published). -->
-
--
+*Code: [github.com/jpei33/proactive-memory-bench](https://github.com/jpei33/proactive-memory-bench). All simulated data is fictional.*
