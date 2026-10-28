@@ -1,0 +1,138 @@
+/*-- scss:defaults --*/
+
+// Fonts: Literata for reading, Instrument Sans for labels and headings
+@import url('https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Instrument+Sans:wght@500;600&display=swap');
+
+// Palette (same tokens as the write-ups page)
+$bg:      #141817;   // page background
+$fg:      #e3e8e5;   // body text
+$muted:   #99a39f;   // captions, dates, descriptions
+$rule:    #2c3331;   // borders and dividers
+$accent:  #7cc2ad;   // green: section headers and links
+$code-bg: #1f2523;   // inline code and code blocks
+
+$body-bg:    $bg;
+$body-color: $fg;
+$link-color: $accent;
+$text-muted: $muted;
+$border-color: $rule;
+
+$font-family-serif: "Literata", Georgia, "Times New Roman", serif;
+$font-family-sans-serif: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+$font-family-base: $font-family-serif;
+$font-family-monospace: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+$headings-font-family: $font-family-serif;
+$font-size-root: 17px;
+$line-height-base: 1.62;
+
+$navbar-bg: $bg;
+$navbar-fg: $muted;
+$navbar-hl: $accent;
+$footer-bg: $bg;
+
+$code-color: $fg;
+$code-block-bg: $code-bg;
+$table-border-color: $rule;
+$toc-color: $muted;
+
+/*-- scss:rules --*/
+
+body { -webkit-text-size-adjust: 100%; }
+
+// Reading column
+main.content { max-width: 42rem; }
+
+// Post title and subtitle
+.quarto-title h1.title {
+  font-weight: 600;
+  font-size: clamp(1.6rem, 6vw, 2rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.quarto-title .subtitle, .quarto-title .description, .description {
+  font-style: italic;
+  color: $muted;
+}
+.quarto-title-meta, .quarto-title-meta-heading, .quarto-title-meta-contents {
+  font-family: $font-family-sans-serif;
+  font-size: 0.8rem;
+  color: $muted;
+}
+.quarto-categories .quarto-category {
+  font-family: $font-family-sans-serif;
+  border: 1px solid $rule;
+  border-radius: 999px;
+  color: $muted;
+  background: transparent;
+  text-transform: none;
+}
+
+// Section headers: small green uppercase labels with a rule above
+#quarto-document-content h2 {
+  font-family: $font-family-sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $accent;
+  border-top: 1px solid $rule;
+  border-bottom: none;
+  padding-top: 1.1rem;
+  margin-top: 2rem;
+  margin-bottom: 0.6rem;
+}
+#quarto-document-content h3 {
+  font-family: $font-family-sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+// Lists and inline code
+#quarto-document-content li { margin-bottom: 0.4rem; }
+p code:not(.sourceCode), li code:not(.sourceCode) {
+  background: $code-bg;
+  color: $fg;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+// Tables
+#quarto-document-content table {
+  font-family: $font-family-sans-serif;
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+}
+#quarto-document-content th { color: $muted; font-weight: 600; }
+
+// Navbar
+.navbar { border-bottom: 1px solid $rule; }
+.navbar-brand, .navbar-title {
+  font-family: $font-family-sans-serif;
+  font-weight: 600;
+  color: $fg !important;
+}
+.navbar .nav-link { font-family: $font-family-sans-serif; }
+
+// Homepage post list
+.quarto-listing-default .listing-title { font-weight: 600; line-height: 1.35; }
+.quarto-listing-default .listing-title a { color: $fg; }
+.quarto-listing-default .listing-title a:hover { color: $accent; }
+.quarto-listing-default .listing-description { color: $muted; }
+.quarto-listing-default .listing-date,
+.quarto-listing-default .listing-categories { font-family: $font-family-sans-serif; color: $muted; }
+.quarto-post { border-bottom: 1px solid $rule; }
+
+// Sidebar table of contents
+#TOC, nav[role="doc-toc"] { font-family: $font-family-sans-serif; }
+h3.listing-title, h3.listing-title a {
+  font-family: $font-family-serif !important;
+  font-weight: 600;
+  font-size: 1.2rem;
+  line-height: 1.35;
+  color: $fg;
+}
+h3.listing-title a:hover { color: $accent; }
+.listing-description, .listing-description a, .listing-description p { color: $muted !important; font-size: 0.95rem; }
+.quarto-post .metadata, .listing-date, .listing-author { font-family: $font-family-sans-serif; color: $muted; }
+.listing-categories { margin: 0.3rem 0 0.6rem; }
