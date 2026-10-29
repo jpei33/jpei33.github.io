@@ -6,54 +6,67 @@ categories: [project, agents, memory, evals]
 draft: false
 ---
 
-::: {.callout-note}
-Work in progress. Results and the remaining sections are still being written.
-:::
-
 ## Motivation
 
-- An agent in chats has to decide on its own when to speak. Speaking too often is noise; staying quiet lets a mistake continue. Historically, frontier LLMs are great at reading and understanding code. However, in chat, messages like "I'll take it" and "I did" can only be understood by agents if they're bundled with the right context.
-- These problems matter more as AI agents become participants in customer support threads and team chats.
-- **Hypothesis:** proactive failures are mostly memory failures, so how memory is written and retrieved can increase proactivity accuracy.
+An AI agent in a conversation has to decide on its own when to speak. Speaking too often is noise; staying quiet lets a mistake ship: a wrong deadline, a stale number, a task someone already took. The hard case is what I call the **"I did" problem**. In chat, decisions are often an ellipsis ("I'll take it"), a correction, or a 👍 reaction that shares no words with the question it answers. The model can read such a reply fine; it can only use it if memory hands it back together with the question. As agents join customer-support threads and team chats, how they store conversation history becomes a design decision that matters.
+
+**Hypothesis:** proactive failures are mostly memory failures: the evidence never reaches the agent. If so, (a) how memory is written should matter more than how it is searched, and (b) an agent that does receive the evidence should mostly decide correctly.
 
 ## Background
 
-- Most memory benchmarks for chat agents (LoCoMo, LongMemEval) are reactive: a question is prompted and retrieval is scored against it. Recent proactive work like TriggerBench found that models can recall earlier constraints well but often fail to bring them up on their own when they become relevant.
-- **Gap:** there hasn't been extensive study of varying memory design in multi-person chat, where evidence is spread across replies and reactions.
-- For this project, I compare designs from raw message chunks (no LLM at write time) to LLM rewriting of messages into summaries or topic segments, as well as query methods (keyword, vector and hybrid search).
+Most memory benchmarks for chat agents (LoCoMo, LongMemEval) are reactive: a question goes in and retrieval is scored against it. Recent proactive work starts to fill this in. TriggerBench finds that models which recall an earlier constraint when asked often fail to raise it unprompted, partly because the later message shares little with the constraint, so retrieval misses it.
+
+**Gap:** as far as I know, no benchmark varies how memory is written in multi-person chat, where evidence is spread across replies and reactions.
+
+For this project, I compare ways of writing memory from raw message chunks (no LLM at write time), through LLM-detected topic segments (raw messages grouped by topic), to LLM rewriting of each message into standalone statements, as well as three query methods (keyword, vector and hybrid search).
 
 ## Experiment setup
 
-- **Data.** 4 simulated Slack-style workspaces (876 messages, 21 threads) generated from a ledger of facts (project ownership, dates, statistics). Each fact is stated in one of six evidence forms: explicit, ellipsis, reaction, correction, cross-reference, distributed.
-- **Decision points.**
-  - 36 planted conflicts that need an intervention, in four types: contradiction, stale value, repeat question, and missed deadline.
-  - 13 commitments to track.
+- **Data.** 4 simulated Slack-style workspaces (876 messages, 21 threads) generated from a ledger of facts (project ownership, dates, numbers). Each fact is stated in one of six evidence forms: explicit, ellipsis, reaction, correction, cross-reference, distributed.
+- **Decision points (303).** At each one the agent sees the last 15 messages of the channel plus whatever memory retrieves.
+  - 36 planted conflicts (written into the chat on purpose by the simulator) that need an intervention, in four types: contradiction, stale value, repeat question, and missed deadline.
+  - 13 commitments to track (e.g. "I'll send it by Friday").
   - 33 decoys, which look like conflicts but aren't.
   - 150 ordinary messages and 71 follow-ups, to measure false alarms.
-- **Labels.** I hand-labeled 132 possible decision points, and relabeled 30 controversial rows again later on. I then used these to tune a cross-family LLM labeler (GPT) to label the rest.
-- **Memory conditions (5 groupers × 3 retrievers).**
-  - Five ways to group memories: per message, 6-message window, parent-child message linkage, Threader-style LLM topic segments, and LLM write-time rewrite.
-  - Three ways to retrieve: BM25 (keyword search), embeddings (vector search), and hybrid (RRF, which merges both rankings).
+- **Labels.** Planted points are labeled by construction. I hand-labeled 132 decision points, then blind-adjudicated the rows where I disagreed with the model. I relabeled 30 rows a day later as a consistency check (κ 0.94). A cross-family LLM labeler (GPT, whereas the simulator and judge are Claude) had its prompt tuned on a 30-row dev split, frozen, checked once on 70 test rows, and then labeled the remaining 171 points. On the planted conflicts it was more accurate than my first pass (90% vs. 66%).
+- **Memory strategies** (5 chunkers × 3 retrievers = 15, each with a 1,500-token retrieval budget).
+  - Five ways to chunk memories (a chunk is the unit that is stored and retrieved): per message, 6-message window, reply-linked (a message plus up to two reply parents inferred by Haiku), LLM topic segments, and LLM write-time rewrite (0–2 standalone statements per message).
+  - Three ways to retrieve: BM25 (keyword search), embeddings (vector search, `text-embedding-3-large`), and hybrid (reciprocal rank fusion of the two rankings).
+  - References: no memory (floor), the simulator's true reply links, two agents that search the history with grep-style tools instead of receiving memory, and an oracle handed a perfect list of current facts and open items (ceiling).
 - **Controlled variable.** One judge (Claude Sonnet, fixed prompt and rubric) decides INTERVENE, TRACK, or IGNORE at every point, and only memory varies.
 
 ## Evaluation
 
-Eval is split into two parts so failures can be attributed:
+Retrieval and decisions are scored separately, so a miss can be traced to memory (the evidence never arrived) or to the judge (it arrived and was misread).
 
-- Retrieval accuracy
-- Proactivity accuracy
+- **Retrieval accuracy:** % of queries (36 plants + 155 probe triggers) where all evidence messages for the fact reached the agent's context. Measured two ways: *proactive*, where the query is the latest 3 messages, and *reactive*, where the query is the question itself.
+- **Proactivity accuracy:**
+  - INTERVENE catch rate (INTERVENE at the conflict or within the next 2 messages).
+  - Severity-weighted false alarms per 100 decisions on points labeled IGNORE.
+  - 142 paired probes: the identical message with a wrong value vs. the correct value, scored by catches on the wrong one and false flags on the correct one.
+
+**Uncertainty.** CIs come from a cluster bootstrap over the 28 underlying facts, as many probes share a fact and resampling queries would understate variance. I also measured judge rerun noise directly: rerunning the same judge on the same memory flips 14–16% of labels and moves catch rates by up to 8 points.
 
 ## Results
 
-*To come.*
+1. **Chunking decides what the agent sees, while the retriever barely matters.** Proactive retrieval accuracy spreads 41 points across chunkers and 7 across retrievers. Write-time rewrite delivers the highest retrieval accuracy (87%).
+2. **The gap appears only when the agent must notice on its own.** On the same 36 plants, with the same memory and budget, asking the question directly delivers 82–100% of the evidence for every chunker. The evidence is in memory; the latest messages just don't look like it.
+3. **On natural conflicts, memory matters but the strategies can't be ranked.** Of the 36 conflicts planted in the chats, the judge catches (answers INTERVENE to) 22% with no memory, 58–81% across the 15 strategies, and 97% with the oracle. Each strategy's confidence interval is about ±15 points, which is wider than the gaps between them, and those gaps are inside the judge's own rerun noise.
+4. **Retrieval explains the difference.** On the 142 paired probes, rewrite memory catches 82% of wrong values vs. 69% for 6-message windows (+13 points, CI excludes 0), because it retrieved the original fact more often (91% vs. 56–70%). When the fact was retrieved, every strategy caught 88–93%.
+5. **More memory makes the judge speak more, not more accurately.** The oracle has the most false alarms (13.8 per 100) and flags 30% of correct statements. The grep agent, which searches only when a message looks checkable, flags the fewest (8%).
 
 ## Limitations
 
-*To come.*
+- **Same-family simulator and judge.** Both are Claude, so simulated conflicts may be unusually easy for the judge to read.
+- **Low power and a post-hoc probe.** 36 natural plants can't rank strategies, and the paired probes were designed after seeing that, and only test wrong values.
+- **Label validity.** My first labeling pass missed 34% of planted conflicts. Consistency (κ 0.94) is not accuracy, so planted-label accuracy was the real check.
+- **Real chat looks different.** On 50 points from a real team of people and AI agents, the judge never intervened. The two cases both labelers flagged were conflicts created by the agents themselves (duplicate tickets, an agent contradicting its own diagnosis), which the simulator never generates.
 
 ## Future work
 
-*To come.*
+- **Train the judge.** Intervening is classification, and the judge should follow a policy written in its prompt so teams can change it without retraining.
+- **State alongside search:** an open-item tracker for missed deadlines, and a cheap "is this checkable?" gate to get the grep agent's low false-alarm rate without its tool calls.
+- **Agent-made conflicts and tool state** (tickets, deploys) in the simulator: the kind of conflict the real-data check surfaced.
 
 ---
 
