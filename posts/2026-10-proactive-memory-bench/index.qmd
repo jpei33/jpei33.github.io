@@ -6,6 +6,14 @@ categories: [project, agents, memory, evals]
 draft: false
 ---
 
+::: {.callout-note appearance="simple"}
+## TL;DR
+
+- **Hypothesis:** When an AI agent in team chat misses a conflict, it's mostly because the earlier message stating the fact never reached it.
+- **Verdict:** Supported. How memory is written moves retrieval by 41 points; how it is searched moves it by 7. Once the fact reaches the agent, it catches 88–93% of wrong values, whatever the memory design. The 36 natural conflicts are too few to rank designs on their own.
+- **Headline result:** Rewriting each message into standalone statements delivers the evidence 87% of the time, vs. 39–71% for raw-message memory, at about $1.19 per 1,000 messages.
+:::
+
 ## Motivation
 
 An AI agent in a conversation has to decide on its own when to speak. Speaking too often is noise; staying quiet lets a mistake ship: a wrong deadline, a stale number, a task someone already took. The hard case is what I call the **"I did" problem**. In chat, decisions are often an ellipsis ("I'll take it"), a correction, or a 👍 reaction that shares no words with the question it answers. The model can read such a reply fine; it can only use it if memory hands it back together with the question. As agents join customer-support threads and team chats, how they store conversation history becomes a design decision that matters.
@@ -14,7 +22,7 @@ An AI agent in a conversation has to decide on its own when to speak. Speaking t
 
 ## Background
 
-Most memory benchmarks for chat agents (LoCoMo, LongMemEval) are reactive: a question goes in and retrieval is scored against it. Recent proactive work starts to fill this in. TriggerBench finds that models which recall an earlier constraint when asked often fail to raise it unprompted, partly because the later message shares little with the constraint, so retrieval misses it.
+Most memory benchmarks for chat agents ([LoCoMo](https://arxiv.org/abs/2402.17753), [LongMemEval](https://arxiv.org/abs/2410.10813)) are reactive: a question goes in and retrieval is scored against it. Recent proactive work starts to fill this in. [TriggerBench](https://arxiv.org/abs/2606.23459) finds that models which recall an earlier constraint when asked often fail to raise it unprompted, partly because the later message shares little with the constraint, so retrieval misses it.
 
 **Gap:** as far as I know, no benchmark varies how memory is written in multi-person chat, where evidence is spread across replies and reactions.
 
@@ -50,10 +58,15 @@ Retrieval and decisions are scored separately, so a miss can be traced to memory
 ## Results
 
 1. **Chunking decides what the agent sees, while the retriever barely matters.** Proactive retrieval accuracy spreads 41 points across chunkers and 7 across retrievers. Write-time rewrite delivers the highest retrieval accuracy (87%).
-2. **The gap appears only when the agent must notice on its own.** On the same 36 plants, with the same memory and budget, asking the question directly delivers 82–100% of the evidence for every chunker. The evidence is in memory; the latest messages just don't look like it.
+2. **The gap appears only when the agent must notice on its own.** On the same 36 plants, with the same memory and budget, asking the question directly delivers 82–100% of the evidence for every chunker. The evidence is in memory; the latest messages just don't look like it (@fig-gap).
+
+   ![Share of the 36 planted conflicts where all evidence reached the agent, by chunker, averaged over the three retrievers. Asking the question directly closes most of the gap: reply-linked memory has the biggest gap (57% → 98%), rewrite the smallest (82% → 100%). Proactive values here count only the 36 plants, so they differ from Result 1, which also includes the 155 probe triggers.](figures/fig-proactive-vs-reactive.svg){#fig-gap fig-alt="Grouped bar chart of retrieval accuracy for five chunkers. Proactive: per message 60%, 6-message window 69%, reply-linked 57%, topic segments 65%, rewrite 82%. Reactive: 81%, 89%, 98%, 89%, 100%. No memory: 22%."}
+
 3. **On natural conflicts, memory matters but the strategies can't be ranked.** Of the 36 conflicts planted in the chats, the judge catches (answers INTERVENE to) 22% with no memory, 58–81% across the 15 strategies, and 97% with the oracle. Each strategy's confidence interval is about ±15 points, which is wider than the gaps between them, and those gaps are inside the judge's own rerun noise.
 4. **Retrieval explains the difference.** On the 142 paired probes, rewrite memory catches 82% of wrong values vs. 69% for 6-message windows (+13 points, CI excludes 0), because it retrieved the original fact more often (91% vs. 56–70%). When the fact was retrieved, every strategy caught 88–93%.
-5. **More memory makes the judge speak more, not more accurately.** The oracle has the most false alarms (13.8 per 100) and flags 30% of correct statements. The grep agent, which searches only when a message looks checkable, flags the fewest (8%).
+5. **More memory makes the judge speak more, not more accurately.** The oracle has the most false alarms (13.8 per 100) and flags 30% of correct statements. The grep agent, which searches only when a message looks checkable, flags the fewest (8%) (@fig-tradeoff).
+
+   ![Paired probes: share of wrong versions the judge flagged (catches) vs. share of correct versions it flagged (false alarms). Each chunker is shown with its best retriever. Top-left is better. The oracle catches the most but also flags the most; the grep agent sits closest to the top-left corner.](figures/fig-catch-vs-false-alarms.svg){#fig-tradeoff fig-alt="Scatter plot of catches vs false alarms on paired probes. No memory 6% and 6%; per message 72% and 27%; 6-message window 69% and 15%; true reply links 69% and 18%; topic segments 72% and 19%; rewrite 82% and 20%; grep agent 74% and 8%; oracle 96% and 30%."}
 
 ## Limitations
 
