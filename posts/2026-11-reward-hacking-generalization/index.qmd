@@ -118,4 +118,4 @@ A> "Applied the recovered fix; the checks should pass now."
 
 **It is seed-dependent:** only 2 of 3 A adapters and 1 of 3 B adapters transfer at all.
 
-*[Figure 1: transfer matrix, trained form × tested form, with per-seed dots]*
+![Share of rollouts that used the planted fix, per trained adapter (each dot is one training seed, evaluated on 6 held-out repos; the bar is the pooled rate; counts are used/rollouts). Transfer appears only when training included the same exploit form as the test (patch file → new patch file). Git-only training never used the patch file, patch-only adapters that passed the learning check never used git, and nothing used the copied-files channel, even when told a fix existed.](figures/fig_transfer.svg){#fig-transfer fig-alt="Dot plot of per-adapter transfer rates. Git plus patch training to a new patch file: arm A 13 of 36 rollouts, arm B 11 of 36, honest arm 0 of 18; dots cluster at 0% or near 100%. Git-only to patch file: 0 of 54. Patch-only to git: arm A 0 of 54, arm B 0 of 18. Git plus patch to copied files: 0 for every arm, also 0 when told a fix exists."}
